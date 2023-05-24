@@ -5,9 +5,15 @@
 /// <reference lib="deno.ns" />
 
 import { start } from "$fresh/server.ts";
-import manifest from "./fresh.gen.ts";
+import manifest from "@/fresh.gen.ts";
 
 import twindPlugin from "$fresh/plugins/twind.ts";
-import twindConfig from "./twind.config.ts";
+import twindConfig from "@/twind.config.ts";
 
-await start(manifest, { plugins: [twindPlugin(twindConfig)], port: 8088 });
+await start(manifest, {
+  plugins: [twindPlugin(twindConfig)],
+  port: (() => {
+    const port = Number(Deno.env.get("PORT"));
+    return Number.isSafeInteger(port) ? port : 8088;
+  })(),
+});

@@ -1,11 +1,27 @@
 {
   "tasks": {
     "dev": "deno run -A --watch=static/,routes/ dev.ts",
-    "start": "deno run -A dev.ts"
+    "start": "deno run -A main.ts",
+    "cache": "deno cache main.ts --reload",
+    "cache:force": "deno cache main.ts --reload --lock-write"
   },
   "importMap": "./import_map.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "recommended"
+      ],
+      "include": [],
+      "exclude": [
+        "no-explicit-any",
+        "require-await",
+        "no-extra-semi",
+        "ban-types"
+      ]
+    }
   }
 }
