@@ -9,9 +9,10 @@ export interface DashboardProps {
 }
 
 export async function requestHandlerDashboard(req: Request, ctx: HandlerContext) {
-  const response = await fetch(
-    "http://localhost:3000/api/data/get/events",
-  );
+  const host = Deno.env.get('RELAY_URL')
+  const url = new URL("/api/metrics/events", host)
+  const response = await fetch(url.toString());
+
   let data: Data = {
     eventCount: 0,
     uniquePubkeys: 0,
@@ -32,49 +33,42 @@ export async function requestHandlerDashboard(req: Request, ctx: HandlerContext)
   const tweets = allTweets.slice(0, shortListAmount);
   const extendedTweets = allTweets.slice(shortListAmount, longListAmount);
 
-  const allFoundIn = [];
-  for (let i = 0; i < allTweets.length; i++) {
-    allFoundIn.push(data.where[i].existsIn);
-  }
-  const foundIn = allFoundIn.slice(0, longListAmount);
-
   return ctx.render({
     data,
     tweets,
     extendedTweets,
-    foundIn,
   });
 }
 
 export function Dashboard(
   props: DashboardProps & TweetListProps,
 ) {
-  const { data, tweets, extendedTweets, foundIn } = props;
+  const { data, tweets, extendedTweets } = props;
 
   return (
     <>
       <div class="m-1 flex-row flex justify-center items-center">
         <div class="flex-1">
           <SingleNumber
-            number={182 + data.eventCount}
+            number={data.eventCount}
             label={"TOTAL EVENT COUNT"}
           />
         </div>
         <div class="flex-1 ml-1">
           <SingleNumber
-            number={data.eventCount}
+            number={data.eventCount24Hours}
             label={"EVENT COUNT 24H"}
           />
         </div>
         <div class="flex-1 ml-1">
           <SingleNumber
-            number={79 + data.uniquePubkeys}
+            number={data.uniquePubkeys}
             label={"TOTAL UNIQUE PUBKEYS"}
           />
         </div>
         <div class="flex-1 ml-1">
           <SingleNumber
-            number={data.uniquePubkeys}
+            number={data.uniquePubkeys24Hours}
             label={"UNIQUE PUBKEYS 24H"}
           />
         </div>
@@ -83,7 +77,6 @@ export function Dashboard(
         <TweetList
           tweets={tweets}
           extendedTweets={extendedTweets}
-          foundIn={foundIn}
         />
         <div class="flex mr-1">
           <Activity networkActivity={data.utc} />

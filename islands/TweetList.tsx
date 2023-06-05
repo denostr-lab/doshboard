@@ -28,7 +28,10 @@ export default function TweetList(props: TweetListProps) {
     tweets.value = [];
     extendedTweets.value = [];
 
-    const response = await fetch("http://localhost:3000/api/data/insert/events")
+    const host = Deno.env.get('RELAY_URL')
+    const url = new URL("/api/metrics/events", host)
+    
+    const response = await fetch(url.toString())
       .then((r) => r.json());
     const body = response.body;
 
