@@ -1,6 +1,7 @@
 import { MiddlewareHandlerContext, Status } from "$fresh/server.ts";
 import { cookieSession } from "$fresh_session";
 import { State } from "@/session.ts";
+import { HTTPClient } from "../utils/http.ts";
 
 export const handler = [
   timing,
@@ -8,6 +9,7 @@ export const handler = [
   softwareVersion,
   // simpleVerifyAuthorization,
   // sessionHandler,
+  setClient,
 ];
 
 const session = cookieSession({
@@ -16,6 +18,15 @@ const session = cookieSession({
 
 function sessionHandler(req: Request, ctx: MiddlewareHandlerContext<State>) {
   return session(req, ctx);
+}
+
+function setClient(_req: Request, ctx: MiddlewareHandlerContext) {
+  const { session } = ctx;
+
+  const host = Deno.env.get("RELAY_URL");
+  const client = new HTTPClient({ baseURL: host });
+  ctx.state.client = client;
+  return ctx.next();
 }
 
 async function timing(

@@ -20,3 +20,7 @@ export interface Data {
   uniquePubkeys: number;
   kinds: Kinds;
 }
+
+export interface DataIncome {
+  total: number;
+}

@@ -1,30 +1,21 @@
 import { HandlerContext } from "$fresh/server.ts";
-import { Data } from "@/@types/data.ts";
+import { Data, DataIncome } from "@/@types/data.ts";
 import { SingleNumber } from "@/components/SingleNumber.tsx";
+import { fetchIncome, fetchEvents } from "@/utils/http.ts" ;
 import { Activity } from "@/components/Activity.tsx";
 import TweetList, { TweetListProps } from "@/islands/TweetList.tsx";
 
 export interface DashboardProps {
   data: Data;
+  incomeData: DataIncome;
 }
 
 export async function requestHandlerDashboard(req: Request, ctx: HandlerContext) {
-  const host = Deno.env.get('RELAY_URL')
-  const url = new URL("/api/metrics/events", host)
-  const response = await fetch(url.toString());
+  const { client } = ctx.state;
+  
+  const data = await fetchEvents(client);
+  const incomeData = await fetchIncome(client);
 
-  let data: Data = {
-    eventCount: 0,
-    uniquePubkeys: 0,
-    events: [],
-    utc: {},
-    where: [],
-    kinds: {},
-  };
-
-  if (response.ok) {
-    data = await response.json();
-  }
 
   const allTweets = data.events;
   const shortListAmount = 8;
@@ -35,6 +26,7 @@ export async function requestHandlerDashboard(req: Request, ctx: HandlerContext)
 
   return ctx.render({
     data,
+    incomeData,
     tweets,
     extendedTweets,
   });
@@ -43,7 +35,7 @@ export async function requestHandlerDashboard(req: Request, ctx: HandlerContext)
 export function Dashboard(
   props: DashboardProps & TweetListProps,
 ) {
-  const { data, tweets, extendedTweets } = props;
+  const { data, incomeData, tweets, extendedTweets } = props;
 
   return (
     <>
@@ -72,7 +64,22 @@ export function Dashboard(
             label={"UNIQUE PUBKEYS 24H"}
           />
         </div>
+        
       </div>
+      <div class="m-1 flex-row flex justify-center items-center">
+      <div class="flex-1 ml-1">
+      <div class="p-5 border-1 border-orange-200 bg-white">
+      <span class="block text-center pb-1 text-lg text-orange-500 font-bold tracking-tighter">
+        TOTAL INCOME
+      </span>
+      <div class="text-center">
+        <span class="text-4xl text-stone-700 tracking-[-0.075em]">
+        Satoshi &nbsp;&nbsp; {incomeData.total}
+        </span>
+      </div>
+    </div>
+        </div>
+        </div>
       <div class="pb-1 flex-row flex justify-between items-start">
         <TweetList
           tweets={tweets}
