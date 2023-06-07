@@ -8,7 +8,7 @@ export const handler = [
   // logging,
   softwareVersion,
   // simpleVerifyAuthorization,
-  // sessionHandler,
+  sessionHandler,
   setClient,
 ];
 
@@ -21,7 +21,7 @@ function sessionHandler(req: Request, ctx: MiddlewareHandlerContext<State>) {
 }
 
 function setClient(_req: Request, ctx: MiddlewareHandlerContext) {
-  const { session } = ctx;
+  const { session } = ctx.state;
 
   const host = Deno.env.get("RELAY_URL");
   const client = new HTTPClient({ baseURL: host });

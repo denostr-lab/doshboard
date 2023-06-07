@@ -18,11 +18,11 @@ export const handler: Handlers = {
     return ctx.render(null);
   },
   POST: async (req: Request, ctx: HandlerContext) => {
-    // const { session } = ctx;
+    const { session } = ctx.state;
     const formData = await req.formData();
 
     if (Deno.env.get("APP_KEY") === formData.get("k")) {
-      // session.set("success", "ok");
+      session.set("success", "ok");
     }
 
     return new Response(null, {
