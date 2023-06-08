@@ -21,10 +21,17 @@ function sessionHandler(req: Request, ctx: MiddlewareHandlerContext<State>) {
 }
 
 function setClient(_req: Request, ctx: MiddlewareHandlerContext) {
-  const { session } = ctx.state;
+  const host = Deno.env.get("RELAY_URL") || ''
+  if(!host){
+    return  new Response('Please set environment variables "RELAY_URL"', { status: Status.BadGateway})
+  }
+  const apiKey = Deno.env.get("API_KEY") || ''
+  if(!apiKey){
+    return  new Response('Please set environment variables "API_KEY"', { status: Status.BadGateway})
+  }
+  
 
-  const host = Deno.env.get("RELAY_URL");
-  const client = new HTTPClient({ baseURL: host });
+  const client = new HTTPClient({ baseURL: host, headers:{ "x-api-key": apiKey} });
   ctx.state.client = client;
   return ctx.next();
 }
