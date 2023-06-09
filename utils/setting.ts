@@ -1,17 +1,11 @@
 import { HandlerContext, Status } from "$fresh/server.ts";
 import { Settings } from "@/@types/settings.ts";
+import { HTTPClient } from "@/utils/http.ts";
 
-export const fetchSettings = async () => {
-  let data: Settings = {};
-  const response = await fetch(
-    "http://localhost:8008/api/metrics/settings",
+export const fetchSettings = async (client: HTTPClient) => {
+  return await client.get(
+    "/api/metrics/settings",
   );
-
-  if (response.ok) {
-    data = await response.json();
-  }
-
-  return { data };
 };
 
 function replaceValue(data: any, keys: string[], value: any): any {
@@ -35,7 +29,9 @@ function replaceValue(data: any, keys: string[], value: any): any {
 }
 
 export const submitSettings = async (req: Request, ctx: HandlerContext) => {
-  const data = await fetchSettings();
+  const { client } = ctx.state;
+  const data = await fetchSettings(client as HTTPClient);
+
   if (Object.keys(data.data).length === 0) {
     return new Response(null, {
       status: Status.InternalServerError,
