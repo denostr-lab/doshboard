@@ -4,16 +4,15 @@
 /// <reference lib="dom.asynciterable" />
 /// <reference lib="deno.ns" />
 
+import "dotenv";
 import { start } from "$fresh/server.ts";
 import manifest from "@/fresh.gen.ts";
 
 import twindPlugin from "$fresh/plugins/twind.ts";
 import twindConfig from "@/twind.config.ts";
+import config from "@/config.ts";
 
 await start(manifest, {
   plugins: [twindPlugin(twindConfig)],
-  port: (() => {
-    const port = Number(Deno.env.get("PORT"));
-    return Number.isSafeInteger(port) ? port : 8088;
-  })(),
+  port: config.PORT,
 });

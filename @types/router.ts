@@ -1,5 +1,7 @@
 import { JSX } from "preact";
 import { HandlerContext } from "$fresh/server.ts";
+import { HTTPClient } from "@/utils/http.ts";
+import { WithSession } from "@/session.ts";
 
 export type HTTPMethod = (
   req: Request,
@@ -13,3 +15,5 @@ export interface Router {
   GET?: HTTPMethod;
   POST?: HTTPMethod;
 }
+
+export type State = { client: HTTPClient } & WithSession;

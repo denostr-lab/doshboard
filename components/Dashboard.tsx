@@ -1,20 +1,20 @@
 import { HandlerContext } from "$fresh/server.ts";
 import { Data, DataIncome } from "@/@types/data.ts";
 import { SingleNumber } from "@/components/SingleNumber.tsx";
-import { fetchIncome, fetchEvents } from "@/utils/http.ts" ;
+import { fetchIncome, fetchEvents, HTTPClient } from "@/utils/http.ts" ;
 import { Activity } from "@/components/Activity.tsx";
 import TweetList, { TweetListProps } from "@/islands/TweetList.tsx";
-
 export interface DashboardProps {
   data: Data;
   incomeData: DataIncome;
 }
 
-export async function requestHandlerDashboard(req: Request, ctx: HandlerContext) {
+export async function requestHandlerDashboard(_: Request, ctx: HandlerContext) {
   const { client } = ctx.state;
+  const httpClient = client as HTTPClient
   
-  const data = await fetchEvents(client);
-  const incomeData = await fetchIncome(client);
+  const data = await fetchEvents(httpClient);
+  const incomeData = await fetchIncome(httpClient);
 
 
   const allTweets = data.events;

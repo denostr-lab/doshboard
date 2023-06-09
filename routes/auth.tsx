@@ -1,27 +1,18 @@
 import { HandlerContext, Handlers, Status } from "$fresh/server.ts";
-import { WithSession } from "$fresh_session";
-import { useEffect, useState } from "preact/hooks";
-
-import { HomeProps } from "@/@types/home.ts";
+import { useState } from "preact/hooks";
 import { Header } from "@/components/Header.tsx";
-import { Title } from "@/components/Title.tsx";
 import Button from "@/islands/Button.tsx";
+import config from "@/config.ts";
 
 export const handler: Handlers = {
-  GET: (_req: Request, ctx: HandlerContext) => {
-    // return new Response(null, {
-    //   status: Status.TemporaryRedirect,
-    //   headers: {
-    //     location: "/dashboard",
-    //   },
-    // });
+  GET: async (_req: Request, ctx: HandlerContext) => {
     return ctx.render(null);
   },
   POST: async (req: Request, ctx: HandlerContext) => {
     const { session } = ctx.state;
     const formData = await req.formData();
 
-    if (Deno.env.get("APP_KEY") === formData.get("k")) {
+    if (config.API_KEY === formData.get("k")) {
       session.set("success", "ok");
     }
 
