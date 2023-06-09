@@ -24,7 +24,8 @@ export const routers: Router[] = [
     exclude: false,
     Component: Policies,
     GET: async (_req: Request, ctx: HandlerContext) => {
-      const data = await fetchSettings();
+      const { client } = ctx.state
+      const data = await fetchSettings(client);
       return ctx.render(data);
     },
     POST: (req: Request, ctx: HandlerContext) => {
@@ -36,7 +37,8 @@ export const routers: Router[] = [
     exclude: false,
     Component: Settings,
     GET: async (_req: Request, ctx: HandlerContext) => {
-      const data = await fetchSettings();
+      const { client } = ctx.state
+      const data = await fetchSettings(client);
       return ctx.render(data);
     },
     POST: (req: Request, ctx: HandlerContext) => {
