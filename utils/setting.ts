@@ -45,21 +45,27 @@ export const submitSettings = async (req: Request, ctx: HandlerContext) => {
     if (keys.length === 0) {
       continue;
     }
-    if (["true", "false"].includes(value.toString())) {
-      value = "true" === value.toString();
+
+    const strValue = value.toString()
+    if (["true", "false"].includes(strValue)) {
+      value = "true" === strValue;
+    } else if (/\[[0-9,]*\]/i.test(strValue)) {
+      value = strValue.slice(1, strValue.length - 1).split(',').filter(v => v !== '').map(Number)
+    } else if (/\[[a-z,]*\]/i.test(strValue)) {
+      value = strValue.slice(1, strValue.length - 1).split(',').filter(v => v !== '')
     } else {
-      const numberValue = Number(value.toString());
+      const numberValue = Number(strValue);
       if (Number.isSafeInteger(numberValue)) {
         value = numberValue;
       }
     }
+
     replaceValue(data.data, keys, value);
   }
 
-  const res = await client.post('/api/metrics/settings', data.data );
-
-  if(!res?.body?.get('ok')){
-    new Response('setting is not save', {
+  const { data: response } = await client.post('/api/metrics/settings', data.data );
+  if(!response.ok){
+    return new Response('setting is not save', {
       status: Status.InternalServerError,
     });
   }
