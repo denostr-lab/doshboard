@@ -1,6 +1,7 @@
 import { HandlerContext, Status } from "$fresh/server.ts";
 import { Settings } from "@/@types/settings.ts";
 import { HTTPClient } from "@/utils/http.ts";
+import { State } from "../@types/router.ts";
 
 export const fetchSettings = async (client: HTTPClient) => {
   return await client.get(
@@ -29,7 +30,7 @@ function replaceValue(data: any, keys: string[], value: any): any {
 }
 
 export const submitSettings = async (req: Request, ctx: HandlerContext) => {
-  const { client } = ctx.state;
+  const { client } = ctx.state as State;
   const data = await fetchSettings(client as HTTPClient);
 
   if (Object.keys(data.data).length === 0) {
@@ -55,16 +56,13 @@ export const submitSettings = async (req: Request, ctx: HandlerContext) => {
     replaceValue(data.data, keys, value);
   }
 
-  await fetch(
-    "http://localhost:8008/api/metrics/settings",
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(data.data),
-    },
-  );
+  const res = await client.post('/api/metrics/settings', data.data );
+
+  if(!res?.body?.get('ok')){
+    new Response('setting is not save', {
+      status: Status.InternalServerError,
+    });
+  }
 
   return ctx.render(data);
 };
