@@ -32,10 +32,15 @@ function List(props: ListProps) {
   const [dataset, setDataset] = useState<any[]>([...data].sort(isCompare));
   const inputRef = useRef<HTMLInputElement>(null);
   const addDataset = (_: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
-    const kind = Number(inputRef.current?.value);
-    if (Number.isSafeInteger(kind)) {
+    const numberValue = Number(inputRef.current?.value);
+    if (Number.isSafeInteger(numberValue)) {
       setDataset((prevState) =>
-        [...new Set([...prevState, kind])].sort(isCompare)
+        [...new Set([...prevState, numberValue])].sort(isCompare)
+      );
+    } else {
+      const strValue = (inputRef.current?.value || "").trim();
+      setDataset((prevState) =>
+        [...new Set([...prevState, strValue])].sort(isCompare)
       );
     }
     if (inputRef.current) {
