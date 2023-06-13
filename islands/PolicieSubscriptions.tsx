@@ -1,8 +1,13 @@
 import { JSX } from "preact";
-import { useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import _ from "underscore";
 
-import { Settings } from "@/@types/settings.ts";
+import {
+  EventRateLimit,
+  MessageRateLimit,
+  RateLimit,
+  Settings,
+} from "@/@types/settings.ts";
 import Input from "@/islands/Input.tsx";
 import Button, { Save } from "@/islands/Button.tsx";
 
@@ -95,8 +100,116 @@ function List(props: ListProps) {
   );
 }
 
+interface RateLimitItemElementProps {
+  name: string;
+  value?: string | number;
+  type?: "text" | "number";
+  placeholder: string;
+  label: string;
+  data?: any[];
+}
+
+interface RateLimitItemProps {
+  description: RateLimitItemElementProps;
+  period: RateLimitItemElementProps;
+  rate: RateLimitItemElementProps;
+  kinds?: RateLimitItemElementProps;
+}
+
+function RateLimitItem(props: RateLimitItemProps) {
+  const { description, period, rate, kinds } = props;
+
+  const [kindsData, setKindsData] = useState(kinds?.data || []);
+
+  // (kinds?.data.length > 0) && kinds.data.map((item, index) => {
+  //   if (Array.isArray(item)) {
+  //     kinds.data[index] = item.join("-");
+  //   }
+  // })}
+
+  useEffect(() => {
+    if (kinds?.data) {
+      const data: any[] = [];
+      kinds.data.forEach((item, index) => {
+        if (Array.isArray(item)) {
+          data[index] = item.join("-");
+        }
+      });
+      setKindsData(data);
+    }
+  }, [kinds]);
+
+  return (
+    <>
+      <div class="flex justify-start my-2 mt-10">
+        <span class="w-48 pr-3 text-sm font-medium text-gray-900 text-right">
+          {description.label}
+        </span>
+        <Input
+          placeholder={description.placeholder}
+          type={description.type}
+          name={description.name}
+          value={description.value}
+        />
+      </div>
+      <div class="flex justify-start my-2">
+        <span class="w-48 pr-3 text-sm font-medium text-gray-900 text-right">
+          {rate.label}
+        </span>
+        <Input
+          placeholder={rate.placeholder}
+          type={rate.type}
+          name={rate.name}
+          value={rate.value}
+        />
+      </div>
+      <div class="flex justify-start my-2">
+        <span class="w-48 pr-3 text-sm font-medium text-gray-900 text-right">
+          {period.label}
+        </span>
+        <Input
+          placeholder={period.placeholder}
+          type={period.type}
+          name={period.name}
+          value={period.value}
+        />
+      </div>
+      {kinds && kindsData.length !== 0 && (
+        <>
+          <div class="flex justify-start my-2">
+            <span class="w-48 pr-3 text-sm font-medium text-gray-900 text-right">
+              kinds number
+            </span>
+            <Input
+              placeholder={kinds.placeholder}
+              type={kinds.type}
+              name={kinds.name}
+              value={kindsData}
+            />
+            <input
+              type="hidden"
+              name={kinds.name}
+              value={`[${kindsData.join(",")}]`}
+            />
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 export default function PolicieSubscriptions(props: SettingInfoFormProps) {
   const { data: { limits } } = props;
+  const arr: MessageRateLimit[] = [];
+  if (limits?.message?.rateLimits?.[0]) {
+    arr.push(limits?.message?.rateLimits?.[0]);
+  }
+
+  if (limits?.event?.rateLimits) {
+    limits?.event?.rateLimits.map((item) => {
+      return arr.push(item);
+    });
+  }
 
   return (
     <div class="border ml-1 border-stone-300 bg-white">
@@ -199,6 +312,49 @@ export default function PolicieSubscriptions(props: SettingInfoFormProps) {
               }}
             />
           </div>
+
+          {arr.map((obj) => {
+            const description: RateLimitItemElementProps = {
+              name: "limits.message.rateLimits[0].description",
+              value: obj.description,
+              type: "text",
+              placeholder: "please input message rate limit description",
+              label: "rate limit description",
+            };
+
+            const rate: RateLimitItemElementProps = {
+              name: "limits.message.rateLimits[0].rate",
+              value: obj.rate,
+              type: "number",
+              placeholder: "please input message rate limit rate",
+              label: "rate limit rate",
+            };
+
+            const period: RateLimitItemElementProps = {
+              name: "limits.message.rateLimits[0].period",
+              value: obj.period,
+              type: "number",
+              placeholder: "please input message rate limit period",
+              label: "rate limit period",
+            };
+
+            const kinds: RateLimitItemElementProps = {
+              name: "limits?.event?.rateLimits",
+              value: obj?.kinds,
+              placeholder: "please input ",
+              label: "message rate limit period",
+              data: obj?.kinds,
+            };
+            // console.log("66666", kinds?.data);
+            return (
+              <RateLimitItem
+                description={description}
+                rate={rate}
+                period={period}
+                kinds={kinds}
+              />
+            );
+          })}
 
           <div class="flex justify-start my-2 mt-10">
             <span class="w-48 pr-3 text-sm font-medium text-gray-900 text-right">
