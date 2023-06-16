@@ -16,6 +16,7 @@
     "underscore": "https://esm.sh/underscore@1.13.6",
     "timeago": "https://esm.sh/timeago.js@4.0.2",
     "icons/": "https://deno.land/x/tabler_icons_tsx@0.0.3/tsx/",
-    "dotenv": "https://deno.land/std@0.191.0/dotenv/load.ts"
+    "dotenv": "https://deno.land/std@0.191.0/dotenv/load.ts",
+    "dayjs": "https://esm.sh/dayjs@1.11.8"
   }
 }

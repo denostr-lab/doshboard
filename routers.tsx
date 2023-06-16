@@ -6,6 +6,8 @@ import { Dashboard, requestHandlerDashboard } from "@/components/Dashboard.tsx";
 import { Settings } from "@/components/Settings.tsx"
 import { Policies } from "@/components/Policies.tsx"
 import { fetchSettings, submitSettings } from "@/utils/setting.ts"
+import InvoicesList from "@/islands/InvoicesList.tsx";
+import { fetchInvoiceList } from "@/utils/http.ts";
 
 export const routers: Router[] = [
   {
@@ -31,6 +33,21 @@ export const routers: Router[] = [
     POST: (req: Request, ctx: HandlerContext) => {
       return submitSettings(req, ctx);
     }
+  },
+  {
+    name: "invoiceslist",
+    exclude: false,
+    Component: InvoicesList,
+    GET: async (req: Request, ctx: HandlerContext) => {
+      const url = new URL(req.url)
+      
+      const { client } = ctx.state as State
+      const data = await fetchInvoiceList(client, url.searchParams);
+      return ctx.render(data);
+    },
+    // POST: (req: Request, ctx: HandlerContext) => {
+    //   return submitSettings(req, ctx);
+    // }
   },
   {
     name: "settings",

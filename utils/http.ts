@@ -1,4 +1,5 @@
 import { Data, DataIncome } from "@/@types/data.ts";
+import { InvoicesList } from "@/@types/invoice.ts";
 
 interface FetchOptions {
   output?: "json" | "raw" | "text";
@@ -99,7 +100,14 @@ export class HTTPClient {
     return response.json();
   }
 
-  async get(url: string, init?: RequestInit & FetchOptions) {
+  async get(
+    url: string,
+    init?: RequestInit & FetchOptions & { params?: URLSearchParams },
+  ) {
+    if (init?.params && [...init?.params.keys()].length != 0) {
+      url = `${url}?${init.params.toString()}`;
+    }
+
     return {
       data: await this.do(url, {
         method: "GET",
@@ -172,4 +180,24 @@ export const fetchIncome = async (client: HTTPClient) => {
   }
 
   return data.data;
+};
+
+export const fetchInvoiceList = async (
+  client: HTTPClient,
+  params: URLSearchParams,
+) => {
+  const data: { data: InvoicesList } = await client.get("/api/invoices", {
+    params,
+    interceptor: false,
+    output: "json",
+  });
+  // console.log('4444',data.data);
+  if (!data.data) {
+    return {
+      totalDocs: 0,
+      page: 1,
+      docs: [],
+    };
+  }
+  return data;
 };
