@@ -1,4 +1,4 @@
-import { JSX } from "preact";
+import { JSX, options } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import _ from "underscore";
 
@@ -38,6 +38,7 @@ function List(props: ListProps) {
 
   const [dataset, setDataset] = useState<any[]>([...data].sort(isCompare));
   const inputRef = useRef<HTMLInputElement>(null);
+
   const addDataset = (_: JSX.TargetedMouseEvent<HTMLButtonElement>) => {
     const numberValue = Number(inputRef.current?.value);
     if (Number.isSafeInteger(numberValue)) {
@@ -46,10 +47,15 @@ function List(props: ListProps) {
       );
     } else {
       const strValue = (inputRef.current?.value || "").trim();
-      setDataset((prevState) =>
-        [...new Set([...prevState, strValue])].sort(isCompare)
-      );
+      if (strValue.length === 64) {
+        setDataset((prevState) =>
+          [...new Set([...prevState, strValue])].sort(isCompare)
+        );
+      }else{
+        alert("length must be 64 characters")
+      }
     }
+
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -392,7 +398,7 @@ export default function PolicieSubscriptions(props: SettingInfoFormProps) {
               ) => {
                 return (
                   <div class="flex flex-row justify-between">
-                    <p>{item}</p>
+                    <p>{item.slice(0, 15) + "..." + item.slice(-15)}</p>
                     <span onClick={() => removeItem(index)}>delete</span>
                   </div>
                 );
@@ -411,9 +417,10 @@ export default function PolicieSubscriptions(props: SettingInfoFormProps) {
               renderItem={(
                 { item, index, removeItem }: ListRenderItemProps,
               ) => {
+                // console.log('223344',item)
                 return (
                   <div class="flex flex-row justify-between">
-                    <p>{item}</p>
+                    <p>{item.slice(0, 15) + "..." + item.slice(-15)}</p>
                     <span onClick={() => removeItem(index)}>delete</span>
                   </div>
                 );
