@@ -43,7 +43,11 @@ export const routers: Router[] = [
       
       const { client } = ctx.state as State
       const data = await fetchInvoiceList(client, url.searchParams);
-      return ctx.render(data);
+
+      return ctx.render({
+        ...data,
+        pubkeyOrId: url.searchParams.get('pubkeyOrId') || '',
+      });
     },
     // POST: (req: Request, ctx: HandlerContext) => {
     //   return submitSettings(req, ctx);
