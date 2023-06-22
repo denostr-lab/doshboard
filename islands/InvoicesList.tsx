@@ -1,5 +1,5 @@
 import { InvoicesList as List } from "@/@types/invoice.ts";
-import dayjs from "dayjs"
+import dayjs from "dayjs";
 
 interface InvoicesListProps {
   data: List;
@@ -7,7 +7,7 @@ interface InvoicesListProps {
 }
 
 export default function InvoicesList(props: InvoicesListProps) {
-  const { data, pubkeyOrId = '' } = props;
+  const { data, pubkeyOrId = "" } = props;
 
   const renderItem = (item, index) => {
     return (
@@ -43,7 +43,7 @@ export default function InvoicesList(props: InvoicesListProps) {
           {dayjs(item.create_at).format("YYYY/MM/DD HH:mm:ss")}
         </td>
         <td class="px-6 py-4">
-            {item.status}
+          {item.status}
         </td>
       </tr>
     );
@@ -65,7 +65,8 @@ export default function InvoicesList(props: InvoicesListProps) {
   return (
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
       <div class="flex items-center justify-between pb-4">
-        {/* <div>
+        {
+          /* <div>
           <button
             id="dropdownRadioButton"
             data-dropdown-toggle="dropdownRadio"
@@ -204,7 +205,8 @@ export default function InvoicesList(props: InvoicesListProps) {
               </li>
             </ul>
           </div>
-        </div> */}
+        </div> */
+        }
         <label for="table-search" class="sr-only">Search</label>
         <div class="relative">
           <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -223,16 +225,16 @@ export default function InvoicesList(props: InvoicesListProps) {
               </path>
             </svg>
           </div>
-          <form method={'GET'} >
-          <input
-            type="text"
-            id="table-search"
-            class="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="please enter into pubkey or query id"
-            name="pubkeyOrId"
-            value={pubkeyOrId}
-            style={{ width: "32rem" }}
-          />
+          <form method={"GET"}>
+            <input
+              type="text"
+              id="table-search"
+              class="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="please enter into pubkey or query id"
+              name="pubkeyOrId"
+              value={pubkeyOrId}
+              style={{ width: "32rem" }}
+            />
           </form>
         </div>
       </div>
@@ -249,44 +251,49 @@ export default function InvoicesList(props: InvoicesListProps) {
                 </div>
               </th>
               <th scope="col" class="px-6 py-3">
-                invoice_id
+                INVOICE_ID
               </th>
               <th scope="col" class="px-6 py-3">
-                public key
+                PUBLIC KEY
               </th>
               <th scope="col" class="px-6 py-3">
-                units
+                UNITS
               </th>
               <th scope="col" class="px-6 py-3">
-                Invoice Price
+                INVOICE PRICE
               </th>
               <th scope="col" class="px-6 py-3">
-                Income
+                INCOME
               </th>
               <th scope="col" class="px-6 py-3">
-                create_at
+                CREATE_AT
               </th>
               <th scope="col" class="px-6 py-3">
-                invoice type
+                INVOICE TYPE
               </th>
             </tr>
           </thead>
           <tbody>
-                {data.docs.length == 0 && (<tr style={{
+            {data.docs.length == 0 && (
+              <tr
+                style={{
                   height: 200,
-                  width: '100%',
-                }}>
-                    <td colSpan={8}>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                    }}>
+                  width: "100%",
+                }}
+              >
+                <td colSpan={8}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
                     no data
-                    </div>
-                    </td>
-                  </tr>)}
-                {data.docs.map((doc, index) => renderItem(doc, index))}
-            
+                  </div>
+                </td>
+              </tr>
+            )}
+            {data.docs.map((doc, index) => renderItem(doc, index))}
           </tbody>
         </table>
         <nav
@@ -296,7 +303,12 @@ export default function InvoicesList(props: InvoicesListProps) {
           <span class="text-sm font-normal text-gray-500">
             Showing{" "}
             <span class="font-semibold text-gray-900">
-              {((data.page-1) * data.limit == 0) ? 1 : (data.page-1) * data.limit }-{(data.page*data.limit < data.totalDocs) ? data.page*data.limit :  data.totalDocs }
+              {((data.page - 1) * data.limit == 0)
+                ? 1
+                : (data.page - 1) *
+                  data.limit}-{(data.page * data.limit < data.totalDocs)
+                ? data.page * data.limit
+                : data.totalDocs}
             </span>{" "}
             of <span class="font-semibold text-gray-900">{data.totalDocs}</span>
           </span>
@@ -360,15 +372,15 @@ export default function InvoicesList(props: InvoicesListProps) {
               }
 
               const _onClick = () => {
-                const url = new URL(window.location.href)
-                url.searchParams.set('p', page.toString())
-                window.location.href = url.toString()
-              }
+                const url = new URL(window.location.href);
+                url.searchParams.set("p", page.toString());
+                window.location.href = url.toString();
+              };
 
               return (
                 <li>
                   <div
-                  onClick={_onClick}
+                    onClick={_onClick}
                     href="#"
                     class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700    g-gray-700 ext-white"
                   >

@@ -4,8 +4,20 @@ import { State } from "@/@types/router.ts";
 
 export const handler: Handlers = {
   GET: async (_req: Request, ctx: HandlerContext) => {
-    const { client } = ctx.state as State;
-    const body = await fetchEvents(client);
-    return Response.json(body);
+    
+    const { client,session } = ctx.state as State;
+    if(session?.get?.("success")){
+      const body = await fetchEvents(client);
+      return Response.json(body);
+    }else{
+      return new Response(null, {
+        status: Status.TemporaryRedirect,
+        headers: {
+          location:  "/auth",
+        },
+      });
+    }
+
+    
   },
 };
