@@ -10,27 +10,26 @@ import LatestTweetList from "@/islands/LatestTweetList.tsx";
 export interface TweetListProps {
   tweets: Event[];
   extendedTweets: Event[];
-  foundIn: any[];
 }
 
 export default function TweetList(props: TweetListProps) {
   const tweets = useSignal(props.tweets || []);
-  const foundIn = useSignal(props.foundIn || []);
   const extendedTweets = useSignal(props.extendedTweets || []);
 
   const extended = useSignal(false);
   const fetching = useSignal(false);
 
-  const getRecentEvents = async () => {
+  const onRefresh = async () => {
     extended.value = false;
     fetching.value = true;
 
     tweets.value = [];
     extendedTweets.value = [];
 
-    const response = await fetch("http://localhost:3000/api/data/insert/events")
+    const url = new URL("/api/events", window.location.origin);
+    const response = await fetch(url.toString())
       .then((r) => r.json());
-    const body = response.body;
+    const body = response;
 
     fetching.value = false;
 
@@ -52,7 +51,7 @@ export default function TweetList(props: TweetListProps) {
           <div class="flex-1" />
           {fetching.valueOf()
             ? <Loading />
-            : <LatestTweetList getRecentEvents={getRecentEvents} />}
+            : <LatestTweetList getRecentEvents={onRefresh} />}
         </div>
       </div>
 
@@ -61,10 +60,10 @@ export default function TweetList(props: TweetListProps) {
           <div class="flex flex-col">
             {tweets.value.map((tweet, tweetIndex) => (
               <Tweet
+                key={tweetIndex}
                 time={tweet.created_at}
                 message={tweet.content}
                 pubkey={tweet.pubkey}
-                foundIn={foundIn.value[tweetIndex]}
               />
             ))}
           </div>
@@ -72,10 +71,10 @@ export default function TweetList(props: TweetListProps) {
             <div class="flex flex-col">
               {extendedTweets.value.map((tweet, tweetIndex) => (
                 <Tweet
+                  key={tweetIndex}
                   time={tweet.created_at}
                   message={tweet.content}
                   pubkey={tweet.pubkey}
-                  foundIn={foundIn.value[tweetIndex]}
                 />
               ))}
             </div>

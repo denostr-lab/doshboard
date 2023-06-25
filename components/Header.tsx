@@ -5,7 +5,7 @@ import { asset, Head } from "$fresh/runtime.ts";
 export function Header(_: JSX.HTMLAttributes<HTMLButtonElement>) {
   return (
     <Head>
-      <title>noshboard</title>
+      <title>doshboard</title>
       <meta charSet="utf-8" />
       <meta name="description" content="a Nostr relays dashboard" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />

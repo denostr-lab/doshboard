@@ -5,7 +5,7 @@
     "$fresh_charts": "https://deno.land/x/fresh_charts@0.2.1/mod.ts",
     "$fresh_charts/": "https://deno.land/x/fresh_charts@0.2.1/",
     "$fresh_session": "https://deno.land/x/fresh_session@0.2.0/mod.ts",
-    "$fresh-session/": "https://deno.land/x/fresh_session@0.2.0/",
+    "$fresh_session/": "https://deno.land/x/fresh_session@0.2.0/src/",
     "preact": "https://esm.sh/preact@10.13.1",
     "preact/": "https://esm.sh/preact@10.13.1/",
     "preact-render-to-string": "https://esm.sh/*preact-render-to-string@5.2.6",
@@ -15,6 +15,8 @@
     "twind/": "https://esm.sh/twind@0.16.19/",
     "underscore": "https://esm.sh/underscore@1.13.6",
     "timeago": "https://esm.sh/timeago.js@4.0.2",
-    "icons/": "https://deno.land/x/tabler_icons_tsx@0.0.3/tsx/"
+    "icons/": "https://deno.land/x/tabler_icons_tsx@0.0.3/tsx/",
+    "dotenv": "https://deno.land/std@0.191.0/dotenv/load.ts",
+    "dayjs": "https://esm.sh/dayjs@1.11.8"
   }
 }

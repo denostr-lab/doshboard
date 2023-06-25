@@ -1,29 +1,21 @@
 import { HandlerContext } from "$fresh/server.ts";
-import { Data } from "@/@types/data.ts";
+import { Data, DataIncome } from "@/@types/data.ts";
 import { SingleNumber } from "@/components/SingleNumber.tsx";
+import { fetchIncome, fetchEvents, HTTPClient } from "@/utils/http.ts" ;
 import { Activity } from "@/components/Activity.tsx";
 import TweetList, { TweetListProps } from "@/islands/TweetList.tsx";
-
 export interface DashboardProps {
   data: Data;
+  incomeData: DataIncome;
 }
 
-export async function requestHandlerDashboard(req: Request, ctx: HandlerContext) {
-  const response = await fetch(
-    "http://localhost:3000/api/data/get/events",
-  );
-  let data: Data = {
-    eventCount: 0,
-    uniquePubkeys: 0,
-    events: [],
-    utc: {},
-    where: [],
-    kinds: {},
-  };
+export async function requestHandlerDashboard(_: Request, ctx: HandlerContext) {
+  const { client } = ctx.state;
+  const httpClient = client as HTTPClient
+  
+  const data = await fetchEvents(httpClient);
+  const incomeData = await fetchIncome(httpClient);
 
-  if (response.ok) {
-    data = await response.json();
-  }
 
   const allTweets = data.events;
   const shortListAmount = 8;
@@ -32,58 +24,66 @@ export async function requestHandlerDashboard(req: Request, ctx: HandlerContext)
   const tweets = allTweets.slice(0, shortListAmount);
   const extendedTweets = allTweets.slice(shortListAmount, longListAmount);
 
-  const allFoundIn = [];
-  for (let i = 0; i < allTweets.length; i++) {
-    allFoundIn.push(data.where[i].existsIn);
-  }
-  const foundIn = allFoundIn.slice(0, longListAmount);
-
   return ctx.render({
     data,
+    incomeData,
     tweets,
     extendedTweets,
-    foundIn,
   });
 }
 
 export function Dashboard(
   props: DashboardProps & TweetListProps,
 ) {
-  const { data, tweets, extendedTweets, foundIn } = props;
+  const { data, incomeData, tweets, extendedTweets } = props;
 
   return (
     <>
       <div class="m-1 flex-row flex justify-center items-center">
         <div class="flex-1">
           <SingleNumber
-            number={182 + data.eventCount}
+            number={data.eventCount}
             label={"TOTAL EVENT COUNT"}
           />
         </div>
         <div class="flex-1 ml-1">
           <SingleNumber
-            number={data.eventCount}
+            number={data.eventCount24Hours}
             label={"EVENT COUNT 24H"}
           />
         </div>
         <div class="flex-1 ml-1">
           <SingleNumber
-            number={79 + data.uniquePubkeys}
+            number={data.uniquePubkeys}
             label={"TOTAL UNIQUE PUBKEYS"}
           />
         </div>
         <div class="flex-1 ml-1">
           <SingleNumber
-            number={data.uniquePubkeys}
+            number={data.uniquePubkeys24Hours}
             label={"UNIQUE PUBKEYS 24H"}
           />
         </div>
+        
       </div>
+      <div class="m-1 flex-row flex justify-center items-center">
+      <div class="flex-1 ml-1">
+      <div class="p-5 border-1 border-orange-200 bg-white">
+      <span class="block text-center pb-1 text-lg text-orange-500 font-bold tracking-tighter">
+        TOTAL INCOME
+      </span>
+      <div class="text-center">
+        <span class="text-4xl text-stone-700 tracking-[-0.075em]">
+        Satoshi &nbsp;&nbsp; {incomeData.total}
+        </span>
+      </div>
+    </div>
+        </div>
+        </div>
       <div class="pb-1 flex-row flex justify-between items-start">
         <TweetList
           tweets={tweets}
           extendedTweets={extendedTweets}
-          foundIn={foundIn}
         />
         <div class="flex mr-1">
           <Activity networkActivity={data.utc} />

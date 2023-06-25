@@ -1,13 +1,15 @@
 import { MiddlewareHandlerContext, Status } from "$fresh/server.ts";
 import { cookieSession } from "$fresh_session";
-import { State } from "@/session.ts";
+import { State } from "@/@types/router.ts";
+import { HTTPClient } from "@/utils/http.ts";
+import config from "@/config.ts";
 
 export const handler = [
   timing,
-  // logging,
+  logging,
   softwareVersion,
-  // simpleVerifyAuthorization,
-  // sessionHandler,
+  sessionHandler,
+  initHTTPClient,
 ];
 
 const session = cookieSession({
@@ -16,6 +18,26 @@ const session = cookieSession({
 
 function sessionHandler(req: Request, ctx: MiddlewareHandlerContext<State>) {
   return session(req, ctx);
+}
+
+function initHTTPClient(_req: Request, ctx: MiddlewareHandlerContext) {
+  if (!config.RELAY_URL) {
+    return new Response('Please set environment variables "RELAY_URL"', {
+      status: Status.BadGateway,
+    });
+  }
+
+  if (!config.API_KEY) {
+    return new Response('Please set environment variables "API_KEY"', {
+      status: Status.BadGateway,
+    });
+  }
+
+  ctx.state.client = new HTTPClient({
+    baseURL: config.RELAY_URL,
+    headers: { "x-api-key": config.API_KEY },
+  });
+  return ctx.next();
 }
 
 async function timing(
@@ -46,26 +68,6 @@ async function softwareVersion(
   const rev = Deno.env.get("APP_REV") || "0000000";
   const version = Deno.env.get("APP_VERSION") || "0.0.0";
   const res = await ctx.next();
-  res.headers.set("Server", `noshboard/${version};rev=${rev}`);
+  res.headers.set("Server", `doshboard/${version};rev=${rev}`);
   return res;
-}
-
-async function simpleVerifyAuthorization(
-  req: Request,
-  ctx: MiddlewareHandlerContext,
-): Promise<Response> {
-  const url = new URL(req.url);
-  if (url.pathname === "/auth" && !req.headers.has("authorization")) {
-    return ctx.next();
-  }
-
-  if (req.headers.get("authorization") !== Deno.env.get("AUTH_TOKEN")) {
-    return new Response("Unauthorized", {
-      status: Status.MovedPermanently,
-      headers: {
-        location: "/auth",
-      },
-    });
-  }
-  return ctx.next();
 }

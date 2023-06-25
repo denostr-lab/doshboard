@@ -1,17 +1,12 @@
 import { HandlerContext, Status } from "$fresh/server.ts";
 import { Settings } from "@/@types/settings.ts";
+import { HTTPClient } from "@/utils/http.ts";
+import { State } from "../@types/router.ts";
 
-export const fetchSettings = async () => {
-  let data: Settings = {};
-  const response = await fetch(
-    "http://localhost:8008/api/metrics/settings",
+export const fetchSettings = async (client: HTTPClient) => {
+  return await client.get(
+    "/api/metrics/settings",
   );
-
-  if (response.ok) {
-    data = await response.json();
-  }
-
-  return { data };
 };
 
 function replaceValue(data: any, keys: string[], value: any): any {
@@ -35,7 +30,9 @@ function replaceValue(data: any, keys: string[], value: any): any {
 }
 
 export const submitSettings = async (req: Request, ctx: HandlerContext) => {
-  const data = await fetchSettings();
+  const { client } = ctx.state as State;
+  const data = await fetchSettings(client as HTTPClient);
+
   if (Object.keys(data.data).length === 0) {
     return new Response(null, {
       status: Status.InternalServerError,
@@ -48,27 +45,39 @@ export const submitSettings = async (req: Request, ctx: HandlerContext) => {
     if (keys.length === 0) {
       continue;
     }
-    if (["true", "false"].includes(value.toString())) {
-      value = "true" === value.toString();
+
+    const strValue = value.toString()
+    if (["true", "false"].includes(strValue)) {
+      value = "true" === strValue;
+    } else if (/\[[0-9,]*\]/i.test(strValue)) {
+      // number array or mulit
+      try {
+        value = JSON.parse(strValue)
+      } catch{
+        return new Response('parse error', {
+          status: Status.InternalServerError,
+        })
+      }
+    } else if (/\[([a-z0-9]{64},?)*\]/i.test(strValue)) {
+      // string array
+      value = strValue.slice(1, strValue.length - 1).split(',').filter(v => v !== '')
     } else {
-      const numberValue = Number(value.toString());
+      const numberValue = Number(strValue);
       if (Number.isSafeInteger(numberValue)) {
         value = numberValue;
       }
     }
+
     replaceValue(data.data, keys, value);
   }
+  
 
-  await fetch(
-    "http://localhost:8008/api/metrics/settings",
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(data.data),
-    },
-  );
+  const { data: response } = await client.post('/api/metrics/settings', data.data );
+  if(!response.ok){
+    return new Response('setting is not save', {
+      status: Status.InternalServerError,
+    });
+  }
 
   return ctx.render(data);
 };

@@ -19,4 +19,10 @@ export interface Data {
   eventCount: number;
   uniquePubkeys: number;
   kinds: Kinds;
+  eventCount24Hours: number;
+  uniquePubkeys24Hours: number;
+}
+
+export interface DataIncome {
+  total: number;
 }

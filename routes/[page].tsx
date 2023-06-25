@@ -10,14 +10,14 @@ import { hit, hitComponent, routers } from "@/routers.tsx";
 export const handler: Handlers = {
   GET: (req: Request, ctx: HandlerContext) => {
     const { session } = ctx.state;
-    // if (!session?.get("success")) {
-    //   return new Response(null, {
-    //     status: Status.TemporaryRedirect,
-    //     headers: {
-    //       location: "/auth",
-    //     },
-    //   });
-    // }
+    if (!session?.has("success")) {
+      return new Response(null, {
+        status: Status.TemporaryRedirect,
+        headers: {
+          location: "/auth",
+        },
+      });
+    }
 
     const router = hit(ctx.params);
     if (router?.GET) {
@@ -27,6 +27,15 @@ export const handler: Handlers = {
   },
   POST: (req: Request, ctx: HandlerContext) => {
     const router = hit(ctx.params);
+    const { session } = ctx.state;
+    if (!session?.has("success")) {
+      return new Response(null, {
+        status: Status.TemporaryRedirect,
+        headers: {
+          location: "/auth",
+        },
+      });
+    }
     if (router?.POST) {
       return router.POST(req, ctx);
     }
